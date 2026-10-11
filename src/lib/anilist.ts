@@ -48,7 +48,20 @@ const ANIME_DETAIL_QUERY = `
     }
   }
 `;
-
+const SEARCH_QUERY = `
+  query ($page: Int, $perPage: Int, $search: String, $genre: String, $sort: [MediaSort]) {
+    Page(page: $page, perPage: $perPage) {
+      pageInfo { hasNextPage }
+      media(type: ANIME, search: $search, genre: $genre, sort: $sort) {
+        id
+        title { romaji english }
+        averageScore
+        episodes
+        coverImage { large }
+      }
+    }
+  }
+`;
 
 type AniListMedia = {
   id: number;
@@ -69,6 +82,7 @@ type AniListDetail = AniListMedia & {
   popularity: number | null;
 };
 
+type SearchAnimeParams = { search?: string; genre?: string; page?: number };
 
 function toAnime(m: AniListMedia): Anime {
   return {
@@ -152,4 +166,36 @@ export async function getAnimeDetail(id: number): Promise<AnimeDetail | null> {
     console.error("Fetch detail error:", err);
     return null;
   }
+}
+
+export async function searchAnime({
+  search,
+  genre,
+  page = 1,
+}: SearchAnimeParams = {}): Promise<{ items: Anime[]; hasNextPage: boolean }> {
+  const res = await fetch(ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query: SEARCH_QUERY,
+      variables: {
+        page,
+        perPage: 12,
+        search: search || undefined, // undefined dibuang oleh JSON.stringify
+        genre: genre || undefined,
+        sort: search ? ["SEARCH_MATCH"] : ["SCORE_DESC"],
+      },
+    }),
+    next: { revalidate: 3600 },
+  });
+
+  const json = await res.json();
+
+  if (!res.ok || !json.data) {
+    console.error("AniList search gagal:", res.status, JSON.stringify(json.errors ?? json));
+    throw new Error("Gagal mengambil data anime");
+  }
+
+  const { media, pageInfo } = json.data.Page;
+  return { items: media.map(toAnime), hasNextPage: pageInfo.hasNextPage };
 }

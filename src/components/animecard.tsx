@@ -16,7 +16,7 @@ export default function AnimeCard({ anime }: { anime: Anime }) {
         <h2 className="line-clamp-2 font-semibold">{anime.title}</h2>
         <p className="text-sm text-gray-500">{anime.episodes ?? "?"} episode</p>
         <p className="mt-1 text-yellow-500">★ {anime.score ?? "N/A"}</p>
-        <p className="mt-1 text-gray-500">Popularity: {anime.popularity ?? "N/A"}</p>
+        <p className="mt-1 text-gray-500">🔥Popularity: {anime.popularity ?? "N/A"}</p>
       </div>
     </Link>
   );
