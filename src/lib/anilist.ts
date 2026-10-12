@@ -25,7 +25,7 @@ const POPULARITY_QUERY = `
         title { romaji english }
         averageScore
         episodes
-        coverImage { large }
+        coverImage { extraLarge }
         popularity
       }
     }
@@ -38,7 +38,7 @@ const ANIME_DETAIL_QUERY = `
       title { romaji english }
       averageScore
       episodes
-      coverImage { large }
+      coverImage { extraLarge }
       description(asHtml: false)
       genres
       status
@@ -57,7 +57,7 @@ const SEARCH_QUERY = `
         title { romaji english }
         averageScore
         episodes
-        coverImage { large }
+        coverImage { extraLarge }
       }
     }
   }
@@ -68,7 +68,7 @@ type AniListMedia = {
   title: { romaji: string | null; english: string | null };
   averageScore: number | null; // skala 0-100
   episodes: number | null;
-  coverImage: { large: string };
+  coverImage: { extraLarge: string };
   popularity: number | null;
 };
 
@@ -90,7 +90,7 @@ function toAnime(m: AniListMedia): Anime {
     title: m.title.english ?? m.title.romaji ?? "Tanpa judul",
     score: m.averageScore ? m.averageScore / 10 : null,
     episodes: m.episodes,
-    imageUrl: m.coverImage.large,
+    imageUrl: m.coverImage.extraLarge,
     popularity: m.popularity,
   };
 }

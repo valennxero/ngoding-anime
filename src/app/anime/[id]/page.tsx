@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAnimeDetail } from "@/lib/anilist";
-
+import Image from "next/image";
+import MyListControl from "@/components/mylistcontrol";
+import { getEntry } from "@/lib/mylist-store";
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const anime = await getAnimeDetail(Number(id));
 
-  return { title: anime ? `${anime.title} | Anime List` : "Anime tidak ditemukan" };
+  return { title: anime ? anime.title : "Anime tidak ditemukan" };
 }
 
 export default async function AnimeDetailPage({ params }: Props) {
@@ -20,6 +22,7 @@ export default async function AnimeDetailPage({ params }: Props) {
 
   const anime = await getAnimeDetail(numericId);
   if (!anime) notFound();
+  const entry = await getEntry(anime.id);
 
   return (
     <main className="mx-auto max-w-4xl p-6">
@@ -28,11 +31,16 @@ export default async function AnimeDetailPage({ params }: Props) {
       </Link>
 
       <div className="mt-4 flex flex-col gap-6 md:flex-row">
-        <img
-          src={anime.imageUrl}
-          alt={anime.title}
-          //className="w-full rounded-lg object-cover md:w-64"
-        />
+        <div className="relative aspect-[2/3] w-full shrink-0 md:w-64">
+          <Image
+            src={anime.imageUrl}
+            alt={anime.title}
+            fill
+            preload
+            sizes="(min-width: 768px) 256px, 100vw"
+            className="rounded-lg object-cover"
+          />
+        </div>
 
         <div>
           <h1 className="text-3xl font-bold">{anime.title}</h1>
@@ -58,7 +66,7 @@ export default async function AnimeDetailPage({ params }: Props) {
               </span>
             ))}
           </div>
-
+          <MyListControl animeId={anime.id} current={entry?.status ?? null} />
           <p className="mt-6 whitespace-pre-line leading-relaxed">
             {anime.synopsis ?? "Belum ada sinopsis."}
           </p>

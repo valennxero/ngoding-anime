@@ -22,9 +22,25 @@ export default async function Home({ searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-5xl p-6">
-      <h1 className="mb-6 text-3xl font-bold">
-        {isFiltering ? "Hasil Pencarian" : "Top Anime"}
-      </h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">
+          {isFiltering ? "Hasil Pencarian" : "Top Anime"}
+        </h1>
+        <div className="flex gap-2">
+          <Link
+            href="/mylist"
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
+            My List
+          </Link>
+          <Link
+            href="/about"
+            className="rounded border px-4 py-2 hover:bg-gray-100"
+          >
+            Tentang
+          </Link>
+        </div>
+      </div>
 
       <Suspense fallback={null}>
         <SearchFilters />
