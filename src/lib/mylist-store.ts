@@ -31,6 +31,7 @@ export async function getEntry(animeId: number): Promise<MyListEntry | null> {
 type UpsertPatch = {
   status: WatchStatus;
   rating?: number | null; // undefined = biarkan, null = hapus
+  comments?: string | null;
 };
 
 
@@ -49,6 +50,7 @@ export async function upsertEntry(
     status: patch.status,
     rating: patch.rating !== undefined ? patch.rating : (existing?.rating ?? null),
     updatedAt: new Date().toISOString(),
+    comments: patch.comments !== undefined ? patch.comments : (existing?.comments ?? ""),
   };
 
   if (index >= 0) entries[index] = entry;

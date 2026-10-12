@@ -2,11 +2,24 @@ import Link from "next/link";
 import Poster from "@/components/poster";
 import { getMyList } from "@/lib/mylist-store";
 import { STATUS_LABEL, WATCH_STATUSES } from "@/types/mylist";
+import { getMyListStats } from "@/lib/mylist-stats";
+import {
+  DEFAULT_SORT,
+  parseSort,
+  SORT_OPTIONS,
+  sortEntries,
+} from "@/lib/mylist-sort";
 
 export const metadata = { title: "My List" };
+type Props = { searchParams: Promise<{ sort?: string }> };
 
-export default async function MyListPage() {
+export default async function MyListPage({ searchParams }: Props) {
+  const { sort: sortParam } = await searchParams;
+  const sort = parseSort(sortParam);
+
   const entries = await getMyList();
+  const stats = getMyListStats(entries);
+  const sorted = sortEntries(entries, sort);
 
   return (
     <main className="mx-auto max-w-5xl p-6">
@@ -14,14 +27,40 @@ export default async function MyListPage() {
         ← Kembali
       </Link>
       <h1 className="mt-4 text-3xl font-bold">My List</h1>
-
+      <h2 className="mt-2 text-xl font-semibold">Rata-rata Ratingmu : {stats.averageRating?.toFixed(2)} </h2>
+      <h2 className="mt-2 text-xl font-semibold">Jumlah Anime di list-mu : {stats.total} </h2>
+      {entries.length > 0 && (
+        <nav className="mt-6 flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-gray-500">Urutkan:</span>
+          {SORT_OPTIONS.map((option) => {
+            const active = option.value === sort;
+            return (
+              <Link
+                key={option.value}
+                href={
+                  option.value === DEFAULT_SORT
+                    ? "/mylist"
+                    : `/mylist?sort=${option.value}`
+                }
+                aria-current={active ? "true" : undefined}
+                className={`rounded-full border px-3 py-1 ${active
+                    ? "border-blue-500 bg-blue-500 text-white"
+                    : "hover:bg-gray-100"
+                  }`}
+              >
+                {option.label}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
       {entries.length === 0 ? (
         <p className="mt-6 text-gray-500">
           Belum ada anime di list. Buka halaman detail anime dan tambahkan dari sana.
         </p>
       ) : (
         WATCH_STATUSES.map((status) => {
-          const group = entries.filter((e) => e.status === status);
+          const group = sorted.filter((e) => e.status === status);
           if (group.length === 0) return null;
 
           return (

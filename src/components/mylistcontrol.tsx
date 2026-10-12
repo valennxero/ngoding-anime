@@ -1,9 +1,9 @@
 import { removeFromMyList, saveToMyList } from "@/app/actions";
 import { STATUS_LABEL, WATCH_STATUSES, RATING_LABEL, RATING_VALUE, type WatchStatus } from "@/types/mylist";
 
-type Props = { animeId: number; current: WatchStatus | null; currentRating: number | null };
+type Props = { animeId: number; current: WatchStatus | null; currentRating: number | null, currentComments: string | null };
 
-export default function MyListControl({ animeId, current, currentRating }: Props) {
+export default function MyListControl({ animeId, current, currentRating, currentComments }: Props) {
   return (
     <div className="mt-6 rounded-lg border p-4">
       <h2 className="mb-3 font-semibold">My List</h2>
@@ -44,6 +44,14 @@ export default function MyListControl({ animeId, current, currentRating }: Props
         >
           {current ? "Perbarui" : "Tambahkan"}
         </button>
+
+        <textarea
+          name="comments"
+          rows={3}
+          className="mt-2 w-full rounded border px-3 py-2"
+          placeholder="Tambahkan komentar..."
+        />
+
       </form>
 
       {current && (

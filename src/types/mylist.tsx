@@ -7,6 +7,7 @@ export const WATCH_STATUSES = [
 
 export const RATING_VALUE = [10,9,8,7,6,5,4,3,2,1] as const;
 
+
 export type WatchStatus = (typeof WATCH_STATUSES)[number];
 
 export const STATUS_LABEL : Record<WatchStatus, string> = {
@@ -15,6 +16,7 @@ export const STATUS_LABEL : Record<WatchStatus, string> = {
   plan_to_watch: "Berencana menonton",
   dropped: "Dihentikan",
 };
+export const comments: string = "";
 
 export const RATING_LABEL: Record<number, string> = {
   10: "Masterpiece",
@@ -49,4 +51,5 @@ export type MyListEntry = {
   status: WatchStatus;
   rating: number | null;
   updatedAt: string;
+  comments: string | null;
 };

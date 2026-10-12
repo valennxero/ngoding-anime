@@ -9,19 +9,66 @@ export async function saveToMyList(formData: FormData) {
   const animeId = Number(formData.get("animeId"));
   const status = formData.get("status");
   const ratingRaw = formData.get("rating");
+  const comments = formData.get("comments");
 
-  // Validasi di server: jangan percaya data dari browser
-  if (!Number.isInteger(animeId) || !isWatchStatus(status)) return;
+  console.log("saveToMyList:", { animeId, status, ratingRaw, comments });
+
+  if (!Number.isInteger(animeId) || !isWatchStatus(status)) {
+    console.log("DITOLAK: animeId atau status tidak valid");
+    return;
+  }
+
   let rating: number | null = null;
-  if (ratingRaw !== null) {
-    const ratingNum = Number(ratingRaw);
-    if (!isValidRating(ratingNum)) return;
-    rating = ratingNum;
+  if (typeof ratingRaw === "string" && ratingRaw !== "") {
+    rating = Number(ratingRaw);
+    if (!isValidRating(rating)) {
+      console.log("DITOLAK: rating tidak valid:", rating);
+      return;
+    }
+  }
+
+  const anime = await getAnimeDetail(animeId);
+  if (!anime) {
+    console.log("DITOLAK: anime tidak ditemukan di AniList");
+    return;
+  }
+
+  await upsertEntry(anime, { status, rating, comments: typeof comments === "string" ? comments : null });
+  console.log("TERSIMPAN");
+
+  revalidatePath(`/anime/${animeId}`);
+  revalidatePath("/mylist");
+}
+
+export async function updateMyListEntry(formData: FormData) {
+  const animeId = Number(formData.get("animeId"));
+  const status = formData.get("status");
+  const ratingRaw = formData.get("rating");
+  const comments = formData.get("comments");
+
+  console.log("updateMyListEntry:", { animeId, status, ratingRaw, comments });
+
+  if (!Number.isInteger(animeId) || !isWatchStatus(status)) {
+    console.log("DITOLAK: animeId atau status tidak valid");
+    return;
+  }
+
+  let rating: number | null = null;
+  if (typeof ratingRaw === "string" && ratingRaw !== "") {
+    rating = Number(ratingRaw);
+    if (!isValidRating(rating)) {
+      console.log("DITOLAK: rating tidak valid:", rating);
+      return;
+    }
   }
   const anime = await getAnimeDetail(animeId);
-  if (!anime) return;
+  if (!anime) {
+    console.log("DITOLAK: anime tidak ditemukan di AniList");
+    return;
+  }
 
-  await upsertEntry(anime, { status, rating });
+  await upsertEntry(anime, { status, rating, comments: typeof comments === "string" ? comments : null });
+  console.log("TERSIMPAN");
 
   revalidatePath(`/anime/${animeId}`);
   revalidatePath("/mylist");
