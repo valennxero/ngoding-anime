@@ -66,7 +66,7 @@ export default async function AnimeDetailPage({ params }: Props) {
               </span>
             ))}
           </div>
-          <MyListControl animeId={anime.id} current={entry?.status ?? null} />
+          <MyListControl animeId={anime.id} current={entry?.status ?? null} currentRating={entry?.rating ?? null} />
           <p className="mt-6 whitespace-pre-line leading-relaxed">
             {anime.synopsis ?? "Belum ada sinopsis."}
           </p>

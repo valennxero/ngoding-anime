@@ -1,9 +1,9 @@
 import { removeFromMyList, saveToMyList } from "@/app/actions";
-import { STATUS_LABEL, WATCH_STATUSES, type WatchStatus } from "@/types/mylist";
+import { STATUS_LABEL, WATCH_STATUSES, RATING_LABEL, RATING_VALUE, type WatchStatus } from "@/types/mylist";
 
-type Props = { animeId: number; current: WatchStatus | null };
+type Props = { animeId: number; current: WatchStatus | null; currentRating: number | null };
 
-export default function MyListControl({ animeId, current }: Props) {
+export default function MyListControl({ animeId, current, currentRating }: Props) {
   return (
     <div className="mt-6 rounded-lg border p-4">
       <h2 className="mb-3 font-semibold">My List</h2>
@@ -22,6 +22,19 @@ export default function MyListControl({ animeId, current }: Props) {
           {WATCH_STATUSES.map((s) => (
             <option key={s} value={s}>
               {STATUS_LABEL[s]}
+            </option>
+          ))}
+        </select>
+         <select
+          name="rating"
+          defaultValue={currentRating?.toString() ?? ""}
+          className="rounded border px-3 py-2"
+          aria-label="Rating pribadi"
+        >
+          <option value="">Belum dinilai</option>
+          {RATING_VALUE.map((r) => (
+            <option key={r} value={r}>
+              {r} - {RATING_LABEL[r]}
             </option>
           ))}
         </select>

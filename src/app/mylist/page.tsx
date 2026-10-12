@@ -29,6 +29,7 @@ export default async function MyListPage() {
               <h2 className="mb-3 text-xl font-semibold">
                 {STATUS_LABEL[status]} ({group.length})
               </h2>
+
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {group.map((e) => (
                   <Link
@@ -44,6 +45,12 @@ export default async function MyListPage() {
                       />
                     </div>
                     <p className="line-clamp-2 p-3 font-semibold">{e.title}</p>
+                    <div className="p-3">
+                      <p className="line-clamp-2 font-semibold">{e.title}</p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {e.rating ? `★ Rating saya: ${e.rating}/10` : "Belum dinilai"}
+                      </p>
+                    </div>
                   </Link>
                 ))}
               </div>

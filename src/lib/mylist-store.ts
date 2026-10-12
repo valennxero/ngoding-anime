@@ -6,7 +6,8 @@ const FILE = path.join(process.cwd(), "data", "mylist.json");
 
 async function readAll(): Promise<MyListEntry[]> {
   try {
-    return JSON.parse(await fs.readFile(FILE, "utf-8"));
+    const raw: MyListEntry[] = JSON.parse(await fs.readFile(FILE, "utf-8"));
+    return raw.map((e) => ({ ...e, rating: e.rating ?? null }));
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
     throw err;
@@ -27,20 +28,29 @@ export async function getEntry(animeId: number): Promise<MyListEntry | null> {
   return entries.find((e) => e.animeId === animeId) ?? null;
 }
 
+type UpsertPatch = {
+  status: WatchStatus;
+  rating?: number | null; // undefined = biarkan, null = hapus
+};
+
+
 export async function upsertEntry(
   anime: { id: number; title: string; imageUrl: string | null },
-  status: WatchStatus
+  patch: UpsertPatch
 ) {
   const entries = await readAll();
+  const index = entries.findIndex((e) => e.animeId === anime.id);
+  const existing = index >= 0 ? entries[index] : null;
+
   const entry: MyListEntry = {
     animeId: anime.id,
     title: anime.title,
     imageUrl: anime.imageUrl,
-    status,
+    status: patch.status,
+    rating: patch.rating !== undefined ? patch.rating : (existing?.rating ?? null),
     updatedAt: new Date().toISOString(),
   };
 
-  const index = entries.findIndex((e) => e.animeId === anime.id);
   if (index >= 0) entries[index] = entry;
   else entries.push(entry);
 
