@@ -5,6 +5,9 @@ import { getAnimeDetail } from "@/lib/anilist";
 import Image from "next/image";
 import MyListControl from "@/components/mylistcontrol";
 import { getEntry } from "@/lib/mylist-store";
+import { refreshAnime } from "@/app/actions";
+import { getCurrentUserId } from "@/lib/current-user";
+
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -22,7 +25,7 @@ export default async function AnimeDetailPage({ params }: Props) {
 
   const anime = await getAnimeDetail(numericId);
   if (!anime) notFound();
-  const entry = await getEntry(anime.id);
+  const entry = await getEntry(await getCurrentUserId(), anime.id);
 
   return (
     <main className="mx-auto max-w-4xl p-6">
@@ -69,7 +72,14 @@ export default async function AnimeDetailPage({ params }: Props) {
           <p className="mt-6 whitespace-pre-line leading-relaxed">
             {anime.synopsis ?? "Belum ada sinopsis."}
           </p>
-          
+
+          <form action={refreshAnime} className="mt-4">
+            <input type="hidden" name="animeId" value={anime.id} />
+            <button type="submit" className="text-sm text-gray-500 hover:underline">
+              Segarkan data dari AniList
+            </button>
+          </form>
+
           <MyListControl animeId={anime.id} current={entry?.status ?? null} currentRating={entry?.rating ?? null} currentComments={entry?.comments ?? null} />
 
           <p className="mt-6 rounded-lg border p-4">

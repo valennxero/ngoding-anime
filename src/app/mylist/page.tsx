@@ -3,6 +3,7 @@ import Poster from "@/components/poster";
 import { getMyList } from "@/lib/mylist-store";
 import { STATUS_LABEL, WATCH_STATUSES } from "@/types/mylist";
 import { getMyListStats } from "@/lib/mylist-stats";
+import { getCurrentUserId } from "@/lib/current-user";
 import {
   DEFAULT_SORT,
   parseSort,
@@ -17,7 +18,7 @@ export default async function MyListPage({ searchParams }: Props) {
   const { sort: sortParam } = await searchParams;
   const sort = parseSort(sortParam);
 
-  const entries = await getMyList();
+  const entries = await getMyList(await getCurrentUserId());
   const stats = getMyListStats(entries);
   const sorted = sortEntries(entries, sort);
 

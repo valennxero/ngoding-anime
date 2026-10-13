@@ -1,5 +1,6 @@
 import type { Anime, AnimeDetail } from "@/types/anime";
 import { CONFIG_FILES } from "next/dist/shared/lib/constants";
+import { cacheLife, cacheTag } from "next/cache";
 
 const ENDPOINT = "https://graphql.anilist.co";
 
@@ -135,29 +136,21 @@ export async function getPopularAnime(): Promise<Anime[]> {
 }
 
 export async function getAnimeDetail(id: number): Promise<AnimeDetail | null> {
-  console.log("getAnimeDetail dipanggil dengan id:", id);
+  "use cache";
+  cacheLife("days");
+  cacheTag(`anime-${id}`);
 
   try {
     const res = await fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: ANIME_DETAIL_QUERY, variables: { id } }),
-      next: { revalidate: 3600 },
     });
 
-    const text = await res.text();
-    console.log("AniList status:", res.status);
-
-    let json;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      console.error("Respons bukan JSON:", text.slice(0, 300));
-      return null;
-    }
+    const json = await res.json();
 
     if (!res.ok || !json.data?.Media) {
-      console.error("AniList detail gagal:", JSON.stringify(json.errors ?? json));
+      console.error("AniList detail gagal:", res.status, JSON.stringify(json.errors ?? json));
       return null;
     }
 
